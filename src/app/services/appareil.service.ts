@@ -1,4 +1,8 @@
 import {Subject} from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
+@Injectable()
 
 export class AppareilService {
 
@@ -21,6 +25,7 @@ export class AppareilService {
     }
 
   ];
+  constructor(private httpClient: HttpClient){}
 
   emitAppareilSubjet() {
     this.appareilSubject.next(this.appareils.slice());
@@ -64,5 +69,26 @@ export class AppareilService {
     appareilObject.id = this.appareils[(this.appareils.length - 1)].id + 1;
     this.appareils.push(appareilObject);
     this.emitAppareilSubjet();
+  }
+  saveAppareilToServer(){
+    this.httpClient
+    .post('https://projetangular-311608-default-rtdb.europe-west1.firebasedatabase.app/appareils.json', this.appareils)
+    .subscribe(()=>{
+      console.log('Enregistrement réussi');
+    },
+    (error)=>{
+      console.log('Erreur de sauvegarde'+ error);
+    })
+  }
+  getAppareilFromServer() {
+    this.httpClient
+    .get<any[]>('https://projetangular-311608-default-rtdb.europe-west1.firebasedatabase.app/appareils.json')
+    .subscribe((response)=>{
+      this.appareils = response;
+      this.emitAppareilSubjet();
+    },
+    (error)=>{
+      console.log('Erreur de chargement'+ error);
+    });
   }
 }
